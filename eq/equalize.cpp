@@ -17,20 +17,17 @@ void equalize(Mat &src, Mat &dst)
 	}
 
 	int total = src.rows * src.cols;
-	for (int i = 0; i < 0xff + 1; i++) {
-		prob[i] = (float)gray[i]/total;
-		printf("[%d]%f\n", i, prob[i]);
+	prob[0] = (float)gray[0]/total;
+	for (int i = 1; i < 0xff + 1; i++) {
+		prob[i] = (float)gray[i]/total + prob[i-1];
+	//	printf("[%d]%f\n", i, prob[i]);
 	}
 
 	for (int i = 0; i < src.rows; i++) {
 		uchar * row = src.ptr<uchar>(i);
 		uchar * drow = dst.ptr<uchar>(i);
 		for (int j = 0; j < src.cols; j++) {
-			float sum = 0.0f;
-			for (int k = 0; k < row[j]; k++) {
-				sum += prob[k];
-			}
-			drow[j] = saturate_cast<uchar>(sum * 0xff);
+			drow[j] = saturate_cast<uchar>(prob[row[j]] * 0xff);
 		}
 	}
 }
